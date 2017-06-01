@@ -8,6 +8,9 @@ setup(name='tyr',
       author_email='nrosbrook@mail.smcvt.edu',
       license='MIT',
       packages=['tyr'],
+      entry_points = {
+          'console_scripts': ['tyr=tyr.command_line:main'],
+      },
       install_requires=[
           'ConfigParser',
           'PyDispatcher',
