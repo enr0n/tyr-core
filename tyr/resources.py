@@ -1,6 +1,6 @@
 import os
 
-class Strings(object):
+class strings(object):
     """
     This class contains a collection of string literals
     used throughout the loki server
@@ -73,7 +73,7 @@ class Strings(object):
     CONF_BUF_SIZE = "buf_size"
     CONF_MAX_CONNS = "max_conns"
 
-class Signals(object):
+class signals(object):
 
     SIG_INIT_TEST = "INIT_TEST"
     SIG_TEST_DONE = "TEST_DONE"
