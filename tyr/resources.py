@@ -1,5 +1,3 @@
-import os
-
 class strings(object):
     """
     This class contains a collection of string literals

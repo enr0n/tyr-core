@@ -17,7 +17,7 @@ class test_queue(object):
         dispatcher.connect(self.__recv_test, signal=resources.signals.SIG_INIT_TEST, sender=dispatcher.Any)
 
     def __recv_test(self, sender):
-        if type(sender) is events.EventQueueTest:
+        if type(sender) is events.event_queue_test:
             self.test_queue.put(sender.testconf)
         else:
             print resources.strings.ERR_UNEXPECTED_OBJECT, sender
@@ -52,14 +52,14 @@ class q_server(object):
         dispatcher.connect(self.__send_error, signal=resources.signals.SIG_BUILD_FAIL, sender=dispatcher.Any)
 
     def __send_output(self, sender):
-        if type(sender) is events.EventTestDone:
+        if type(sender) is events.event_test_done:
             self.conn.sendall(sender.output)
         else:
             print resources.strings.ERR_UNEXPECTED_OBJECT, sender
             sys.exit(-1)
 
     def __send_error(self, sender):
-        if type(sender) is events.EventBuildFail:
+        if type(sender) is events.event_build_fail:
             self.conn.sendall(sender.err)
         else:
             print resources.strings.ERR_UNEXPECTED_OBJECT, sender
@@ -85,7 +85,7 @@ class q_server(object):
                 self.conn, self.addr = self.tsocket.accept()
                 testconf = self.conn.recv(self.buf_size)
                 print resources.strings.TEST_RECV_CONF, testconf
-                eqt = events.EventQueueTest(testconf)
+                eqt = events.event_queue_test(testconf)
                 eqt.trigger()
 
         except KeyboardInterrupt:
