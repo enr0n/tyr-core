@@ -91,12 +91,12 @@ class test_unit(object):
             err = self.controller.build_test(self.testconf)
             if err:
                 print resources.strings.ERR_BUILD_FAILED, err
-                ebf = events.EventBuildFail(err)
+                ebf = events.event_build_fail(err)
                 ebf.trigger()
                 do_exec = False
 
         if do_exec:
             print resources.strings.TEST_EXEC
             output = self.controller.exec_test(self.testconf)
-            etd = events.EventTestDone(output)
+            etd = events.event_test_done(output)
             etd.trigger()

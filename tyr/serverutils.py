@@ -7,6 +7,7 @@ from pydispatch import dispatcher
 
 from tyr import resources
 from tyr import events
+from tyr import testutils
 
 class test_queue(object):
 
@@ -25,8 +26,7 @@ class test_queue(object):
     def __worker(self):
         while True:
             next_test = self.test_queue.get()
-            t = TestUnit(next_test, self.path_testing)
-            # TODO:these need to be parameterized
+            t = testutils.test_unit(next_test, self.path_testing)
             t.run(True, True)
             self.test_queue.task_done()
 
