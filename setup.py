@@ -8,4 +8,9 @@ setup(name='tyr',
       author_email='nrosbrook@mail.smcvt.edu',
       license='MIT',
       packages=['tyr'],
+      install_requires=[
+          'ConfigParser',
+          'PyDispatcher',
+          'paramiko',
+      ],
       zip_safe=False)
