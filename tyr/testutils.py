@@ -1,6 +1,8 @@
 import os
 import random
 import subprocess
+import shutil
+import string
 from ConfigParser import SafeConfigParser
 
 from tyr import resources
@@ -114,9 +116,20 @@ class controller(object):
 class test_unit(object):
 
     def __init__(self, testconf, path_testing):
-        self.testconf = os.path.join(path_testing, os.path.basename(testconf))
+        self.path_testing = path_testing
+        self.testconf = os.path.join(self.path_testing, os.path.basename(testconf))
         parser.read(self.testconf)
         self.controller = controller(path_testing)
+
+    # @future
+    def __gen_id(self):
+        return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+
+    # @future
+    def __mkdir_target(self):
+        target = 'test_' + self.__gen_id()
+        self.path_testing = os.path.join(self.path_testing, target)
+        os.mkdir(self.path_testing)
 
     def run(self, do_compile, do_exec):
         output = ""
