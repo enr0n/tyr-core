@@ -92,6 +92,7 @@ class q_server(object):
 
         except KeyboardInterrupt:
             print resources.strings.EXCEP_KB_INT
+            self.tsocket.close()
             sys.exit(-1)
 
         finally:
