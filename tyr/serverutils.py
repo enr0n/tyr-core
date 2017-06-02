@@ -76,9 +76,11 @@ class q_server(object):
             print resources.strings.ERR_SOCK_BIND + str(msg[0])
             sys.exit(-1)
 
-    def __socket_listen(self):
+    def __init_queue(self):
         tq = test_queue(self.q_size, self.path_testing)
         tq.start_daemon()
+
+    def __socket_listen(self):
         try:
             self.tsocket.listen(self.max_conns)
             while True:
@@ -98,4 +100,5 @@ class q_server(object):
     def start(self):
         self.__create()
         self.__bind_socket()
+        self.__init_queue()
         self.__socket_listen()
