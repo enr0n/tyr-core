@@ -78,6 +78,7 @@ class controller(object):
         libsList = libsList.split(",")
 
         # Set up isolated directory (modifies attribute 'target')
+        unit = os.path.basename(unit)
         self.__create_isolated_directory(unit)
 
         # Call the compiler
@@ -95,6 +96,7 @@ class controller(object):
         Run the specified tests
 
         """
+        unit = os.path.basename(unit)
         cmdList = cmdList.split(",")
         # Run the tests
         for i in range(len(cmdList)):
