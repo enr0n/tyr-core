@@ -65,7 +65,7 @@ class controller(object):
     def __create_isolated_directory(self, unit):
         t = os.path.join(self.target, unit)
         self.target = self.__mkdir_target()
-        self.target = os.path.join(self.target)
+        self.target = os.path.join(self.target, unit)
         os.rename(t, self.target)
 
     def __build(self, unit, language, inputList, outputList, libsList):
@@ -102,6 +102,10 @@ class controller(object):
             cmd = cmd.split(" ")
             ret = subprocess.check_output(cmd)
         return ret
+
+    def clean(self):
+        path = os.path.normpath(os.path.join(self.target, ".."))
+        shutil.rmtree(path)
 
     def build_test(self, testconf):
         """
@@ -152,3 +156,4 @@ class test_unit(object):
             output = self.controller.exec_test(self.testconf)
             etd = events.event_test_done(output)
             etd.trigger()
+        self.controller.clean()
