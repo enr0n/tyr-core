@@ -1,6 +1,7 @@
 import sys
 import socket
 import Queue
+import logging
 from threading import Thread
 from ConfigParser import SafeConfigParser
 from pydispatch import dispatcher
@@ -8,6 +9,8 @@ from pydispatch import dispatcher
 from tyr import resources
 from tyr import events
 from tyr import testutils
+
+logging.basicConfig(filename=resources.strings.FS_LOG, level=logging.DEBUG)
 
 class test_queue(object):
 
@@ -21,7 +24,7 @@ class test_queue(object):
         if type(sender) is events.event_queue_test:
             self.test_queue.put(sender.testconf)
         else:
-            print resources.strings.ERR_UNEXPECTED_OBJECT, sender
+            logging.error(resources.strings.ERR_UNEXPECTED_OBJECT, sender)
 
     def __worker(self):
         while True:
@@ -55,14 +58,14 @@ class q_server(object):
         if type(sender) is events.event_test_done:
             self.conn.sendall(sender.output)
         else:
-            print resources.strings.ERR_UNEXPECTED_OBJECT, sender
+            logging.error(resources.strings.ERR_UNEXPECTED_OBJECT, sender)
             sys.exit(-1)
 
     def __send_error(self, sender):
         if type(sender) is events.event_build_fail:
             self.conn.sendall(sender.err)
         else:
-            print resources.strings.ERR_UNEXPECTED_OBJECT, sender
+            logging.error(resources.strings.ERR_UNEXPECTED_OBJECT, sender)
             sys.exit(-1)
 
     def __create(self):
@@ -73,7 +76,7 @@ class q_server(object):
             self.tsocket.bind((self.addr, self.port))
 
         except socket.error as msg:
-            print resources.strings.ERR_SOCK_BIND + str(msg[0])
+            logging.error(resources.strings.ERR_SOCK_BIND + str(msg[0]))
             sys.exit(-1)
 
     def __init_queue(self):
@@ -86,12 +89,12 @@ class q_server(object):
             while True:
                 self.conn, self.addr = self.tsocket.accept()
                 testconf = self.conn.recv(self.buf_size)
-                print resources.strings.TEST_RECV_CONF, testconf
+                logging.info(resources.strings.TEST_RECV_CONF, testconf)
                 eqt = events.event_queue_test(testconf)
                 eqt.trigger()
 
         except KeyboardInterrupt:
-            print resources.strings.EXCEP_KB_INT
+            logging.info(resources.strings.EXCEP_KB_INT)
             self.tsocket.close()
             sys.exit(-1)
 

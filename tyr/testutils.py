@@ -3,12 +3,14 @@ import random
 import subprocess
 import shutil
 import string
+import logging
 from ConfigParser import SafeConfigParser
 
 from tyr import resources
 from tyr import events
 
 parser = SafeConfigParser()
+logging.basicConfig(filename=resources.strings.FS_LOG, level=logging.DEBUG)
 
 class compilers(object):
     """
@@ -115,6 +117,7 @@ class controller(object):
         testconf
 
         """
+        logging.debug(testconf)
         parser.read(testconf)
         testdir = parser.get(resources.strings.CONF_FILES, resources.strings.CONF_DIR)
         language = parser.get(resources.strings.CONF_BUILD, resources.strings.CONF_LANG)
@@ -129,6 +132,7 @@ class controller(object):
         testconf
 
         """
+        logging.debug(testconf)
         parser.read(testconf)
         testdir = parser.get(resources.strings.CONF_FILES, resources.strings.CONF_DIR)
         cmdList = parser.get(resources.strings.CONF_TEST, resources.strings.CONF_EXEC)
@@ -139,7 +143,7 @@ class test_unit(object):
     def __init__(self, testconf, path_testing):
         self.path_testing = path_testing
         self.testconf = os.path.join(self.path_testing, os.path.basename(testconf))
-        parser.read(self.testconf)
+        logging.debug("init:" + self.testconf)
         self.controller = controller(path_testing)
 
     def run(self, do_compile, do_exec):

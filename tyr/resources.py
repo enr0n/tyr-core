@@ -6,7 +6,7 @@ class strings(object):
     """
     # Filesystem
     FS_SRVR_CONF = "/etc/tyr/conf"
-    FS_SRVR_LOG = "/path/to/log"
+    FS_LOG = "/home/pi/tyrlog"
 
     # Compilers
     COMPILER_PYTHON = "python"
