@@ -62,6 +62,12 @@ class controller(object):
         os.mkdir(target_new)
         return target_new
 
+    def __create_isolated_directory(self, unit):
+        t = os.path.join(self.target, unit)
+        self.target = self.__mkdir_target()
+        self.target = os.path.join(self.target)
+        os.rename(t, self.target)
+
     def __build(self, unit, language, inputList, outputList, libsList):
         """
         Compile all source in the test directory
@@ -71,11 +77,8 @@ class controller(object):
         outputList = outputList.split(",")
         libsList = libsList.split(",")
 
-        # Set up isolated directory
-        path = os.path.join(self.target, unit)
-        self.target = self.__mkdir_target()
-        self.target = os.path.join(self.target, unit)
-        os.rename(path, self.target)
+        # Set up isolated directory (modifies attribute 'target')
+        self.__create_isolated_directory(unit)
 
         # Call the compiler
         err = ""
