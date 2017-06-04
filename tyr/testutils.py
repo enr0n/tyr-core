@@ -50,8 +50,17 @@ class compilers(object):
 
 class controller(object):
 
-    def __init__(self, path_srvr):
-        self.path_srvr = path_srvr
+    def __init__(self, target):
+        self.target = target
+
+    def __gen_id(self):
+        return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+
+    def __mkdir_target(self):
+        id_test = 'test_' + self.__gen_id()
+        target_new = os.path.join(self.target, id_test)
+        os.mkdir(target_new)
+        return target_new
 
     def __build(self, unit, language, inputList, outputList, libsList):
         """
@@ -62,14 +71,18 @@ class controller(object):
         outputList = outputList.split(",")
         libsList = libsList.split(",")
 
-        path = os.path.join(self.path_srvr, unit)
+        # Set up isolated directory
+        path = os.path.join(self.target, unit)
+        self.target = self.__mkdir_target()
+        self.target = os.path.join(self.target, unit)
+        os.rename(path, self.target)
 
         # Call the compiler
         err = ""
         if language == resources.strings.LANG_C:
-            err = compilers.gcc(path, inputList, outputList, libsList)
+            err = compilers.gcc(self.target, inputList, outputList, libsList)
         elif language == resources.strings.LANG_CPP:
-            err = compilers.gpp(path, inputList, outputList, libsList)
+            err = compilers.gpp(self.target, inputList, outputList, libsList)
         else:
             print resources.strings.ERR_NO_LANG + language
         return err
@@ -79,11 +92,10 @@ class controller(object):
         Run the specified tests
 
         """
-        path = os.path.join(self.path_srvr, unit)
         cmdList = cmdList.split(",")
         # Run the tests
         for i in range(len(cmdList)):
-            cmd = os.path.join(path, cmdList[i])
+            cmd = os.path.join(self.target, cmdList[i])
             cmd = cmd.split(" ")
             ret = subprocess.check_output(cmd)
         return ret
@@ -120,16 +132,6 @@ class test_unit(object):
         self.testconf = os.path.join(self.path_testing, os.path.basename(testconf))
         parser.read(self.testconf)
         self.controller = controller(path_testing)
-
-    # @future
-    def __gen_id(self):
-        return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
-
-    # @future
-    def __mkdir_target(self):
-        target = 'test_' + self.__gen_id()
-        self.path_testing = os.path.join(self.path_testing, target)
-        os.mkdir(self.path_testing)
 
     def run(self, do_compile, do_exec):
         output = ""
