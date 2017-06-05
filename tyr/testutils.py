@@ -52,25 +52,25 @@ class compilers(object):
 
 class controller(object):
 
-    def __init__(self, target):
-        self.target = target
+    def __create_isolated_dir(self):
+        path = os.path.join(self.path_testing, self.test_id)
+        os.mkdir(path)
+        err = subprocess.check_call(["tar","xf",path+".tar.gz","-C",path,"--strip-components","1"])
+        self.path_testing = path
 
-    def __gen_id(self):
-        return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+    def __get_testconf(self):
+        logging.debug(os.path.join(self.path_testing, "tyr.toml"))
+        return os.path.join(self.path_testing, "tyr.toml")
 
-    def __mkdir_target(self):
-        id_test = 'test_' + self.__gen_id()
-        target_new = os.path.join(self.target, id_test)
-        os.mkdir(target_new)
-        return target_new
+    def __init__(self, path_testing, test_id):
+        self.path_testing = path_testing
+        self.test_id = test_id
+        
+        self.__create_isolated_dir()
 
-    def __create_isolated_directory(self, unit):
-        t = os.path.join(self.target, unit)
-        self.target = self.__mkdir_target()
-        self.target = os.path.join(self.target, unit)
-        os.rename(t, self.target)
+        self.testconf = self.__get_testconf()
 
-    def __build(self, unit, language, inputList, outputList, libsList):
+    def __build(self, language, inputList, outputList, libsList):
         """
         Compile all source in the test directory
 
@@ -79,78 +79,67 @@ class controller(object):
         outputList = outputList.split(",")
         libsList = libsList.split(",")
 
-        # Set up isolated directory (modifies attribute 'target')
-        unit = os.path.basename(unit)
-        self.__create_isolated_directory(unit)
-
         # Call the compiler
         err = ""
         if language == resources.strings.LANG_C:
-            err = compilers.gcc(self.target, inputList, outputList, libsList)
+            err = compilers.gcc(self.path_testing, inputList, outputList, libsList)
         elif language == resources.strings.LANG_CPP:
-            err = compilers.gpp(self.target, inputList, outputList, libsList)
+            err = compilers.gpp(self.path_testing, inputList, outputList, libsList)
         else:
             print resources.strings.ERR_NO_LANG + language
         return err
 
-    def __test(self, unit, cmdList):
+    def __test(self, cmdList):
         """
         Run the specified tests
 
         """
-        unit = os.path.basename(unit)
         cmdList = cmdList.split(",")
         # Run the tests
         for i in range(len(cmdList)):
-            cmd = os.path.join(self.target, cmdList[i])
+            cmd = os.path.join(self.path_testing, cmdList[i])
             cmd = cmd.split(" ")
             ret = subprocess.check_output(cmd)
         return ret
 
     def clean(self):
-        path = os.path.normpath(os.path.join(self.target, ".."))
+        path = os.path.normpath(os.path.join(self.path_testing, ".."))
         shutil.rmtree(path)
 
-    def build_test(self, testconf):
+    def build_test(self):
         """
         Build the test based on
         testconf
 
         """
-        logging.debug(testconf)
-        parser.read(testconf)
-        testdir = parser.get(resources.strings.CONF_FILES, resources.strings.CONF_DIR)
+        parser.read(self.testconf)
         language = parser.get(resources.strings.CONF_BUILD, resources.strings.CONF_LANG)
         inputs = parser.get(resources.strings.CONF_BUILD, resources.strings.CONF_INPUT)
         outputs = parser.get(resources.strings.CONF_BUILD, resources.strings.CONF_OUTPUT)
         libs = parser.get(resources.strings.CONF_BUILD, resources.strings.CONF_LIBS)
-        return self.__build(testdir, language, inputs, outputs, libs)
+        return self.__build(language, inputs, outputs, libs)
 
-    def exec_test(self, testconf):
+    def exec_test(self):
         """
         Execute the test based on
         testconf
 
         """
-        logging.debug(testconf)
-        parser.read(testconf)
-        testdir = parser.get(resources.strings.CONF_FILES, resources.strings.CONF_DIR)
+        parser.read(self.testconf)
         cmdList = parser.get(resources.strings.CONF_TEST, resources.strings.CONF_EXEC)
-        return self.__test(testdir, cmdList)
+        return self.__test(cmdList)
 
 class test_unit(object):
 
-    def __init__(self, testconf, path_testing):
-        self.path_testing = path_testing
-        self.testconf = os.path.join(self.path_testing, os.path.basename(testconf))
-        logging.debug("init:" + self.testconf)
-        self.controller = controller(path_testing)
+    def __init__(self, test_id, path_testing):
+        logging.debug("init:" + test_id)
+        self.controller = controller(path_testing, test_id)
 
     def run(self, do_compile, do_exec):
         output = ""
         if do_compile:
             print resources.strings.TEST_BUILD
-            err = self.controller.build_test(self.testconf)
+            err = self.controller.build_test()
             if err:
                 print resources.strings.ERR_BUILD_FAILED, err
                 ebf = events.event_build_fail(err)
@@ -159,7 +148,6 @@ class test_unit(object):
 
         if do_exec:
             print resources.strings.TEST_EXEC
-            output = self.controller.exec_test(self.testconf)
+            output = self.controller.exec_test()
             etd = events.event_test_done(output)
             etd.trigger()
-        self.controller.clean()

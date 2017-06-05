@@ -4,6 +4,6 @@ from tyr import serverutils
 def main():
 
     print resources.strings.SRVR_START
-    server = serverutils.q_server(resources.strings.FS_SRVR_CONF)
+    server = serverutils.q_server()
     server.start()
     print resources.strings.SRVR_INIT_DONE

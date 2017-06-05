@@ -40,8 +40,8 @@ class test_queue(object):
 
 class q_server(object):
 
-    def __init__(self, srvr_conf):
-        self.srvr_conf = srvr_conf
+    def __init__(self):
+        self.srvr_conf = resources.strings.FS_SRVR_CONF
         # Setup the server
         parser = SafeConfigParser()
         parser.read(self.srvr_conf)
