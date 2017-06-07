@@ -6,7 +6,12 @@ class strings(object):
     """
     # Filesystem
     FS_SRVR_CONF = "/etc/tyr/conf"
-    FS_LOG = "/home/pi/tyrlog"
+
+    # Logging
+    # TODO: want to log to /var/log/
+    LOG_FILE = "/home/pi/tyrlog"
+    LOG_DATE = '%m/%d/%Y %I:%M:%S %p'
+    LOG_FORMAT = '%(asctime)s %(levelname)s:%(message)s'
 
     # Compilers
     COMPILER_PYTHON = "python"

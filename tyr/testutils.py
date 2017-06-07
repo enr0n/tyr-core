@@ -10,7 +10,10 @@ from tyr import resources
 from tyr import events
 
 parser = SafeConfigParser()
-logging.basicConfig(filename=resources.strings.FS_LOG, level=logging.DEBUG)
+logging.basicConfig(filename=resources.strings.LOG_FILE,
+        level=logging.DEBUG,
+        format=resources.strings.LOG_FORMAT,
+        datefmt=resources.strings.LOG_DATE)
 
 class compilers(object):
     """
@@ -53,8 +56,11 @@ class compilers(object):
 class controller(object):
 
     def __create_isolated_dir(self):
+        logging.info("Creating isolated directory: " + self.test_id)
+
         path = os.path.join(self.path_testing, self.test_id)
         os.mkdir(path)
+        # TODO: Cleanup this command
         err = subprocess.check_call(["tar","xf",path+".tar.gz","-C",path,"--strip-components","1"])
         self.path_testing = path
 
@@ -63,9 +69,11 @@ class controller(object):
         return os.path.join(self.path_testing, "tyr.toml")
 
     def __init__(self, path_testing, test_id):
+        logging.info("Initializing test: " + test_id)
+
         self.path_testing = path_testing
         self.test_id = test_id
-        
+
         self.__create_isolated_dir()
 
         self.testconf = self.__get_testconf()
@@ -75,6 +83,8 @@ class controller(object):
         Compile all source in the test directory
 
         """
+        logging.info("Building source: " + self.test_id)
+
         inputList = inputList.split(",")
         outputList = outputList.split(",")
         libsList = libsList.split(",")
@@ -94,6 +104,8 @@ class controller(object):
         Run the specified tests
 
         """
+        logging.info("Running test: " + self.test_id)
+
         cmdList = cmdList.split(",")
         # Run the tests
         for i in range(len(cmdList)):
@@ -103,6 +115,8 @@ class controller(object):
         return ret
 
     def clean(self):
+        logging.info("Cleaning test: " + self.test_id)
+
         path = os.path.normpath(os.path.join(self.path_testing, ".."))
         shutil.rmtree(path)
 

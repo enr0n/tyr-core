@@ -10,11 +10,16 @@ from tyr import resources
 from tyr import events
 from tyr import testutils
 
-logging.basicConfig(filename=resources.strings.FS_LOG, level=logging.DEBUG)
+logging.basicConfig(filename=resources.strings.LOG_FILE,
+        level=logging.DEBUG,
+        format=resources.strings.LOG_FORMAT,
+        datefmt=resources.strings.LOG_DATE)
 
 class test_queue(object):
 
     def __init__(self, q_size, path_testing):
+        logging.info("Initializing test queue")
+
         self.q_size = q_size
         self.test_queue = Queue.Queue(maxsize=q_size)
         self.path_testing = path_testing
@@ -22,6 +27,7 @@ class test_queue(object):
 
     def __recv_test(self, sender):
         if type(sender) is events.event_queue_test:
+            logging.info("Received queue request: " + sender.testconf)
             self.test_queue.put(sender.testconf)
         else:
             logging.error(resources.strings.ERR_UNEXPECTED_OBJECT, sender)
@@ -29,6 +35,7 @@ class test_queue(object):
     def __worker(self):
         while True:
             next_test = self.test_queue.get()
+            logging.info("worker: initializing test unit for: " + next_test)
             t = testutils.test_unit(next_test, self.path_testing)
             t.run(True, True)
             self.test_queue.task_done()
@@ -41,6 +48,8 @@ class test_queue(object):
 class q_server(object):
 
     def __init__(self):
+        logging.info("Initializing server")
+
         self.srvr_conf = resources.strings.FS_SRVR_CONF
         # Setup the server
         parser = SafeConfigParser()
@@ -56,6 +65,7 @@ class q_server(object):
 
     def __send_output(self, sender):
         if type(sender) is events.event_test_done:
+            logging.info("Sending output to client")
             self.conn.sendall(sender.output)
         else:
             logging.error(resources.strings.ERR_UNEXPECTED_OBJECT, sender)
@@ -63,6 +73,7 @@ class q_server(object):
 
     def __send_error(self, sender):
         if type(sender) is events.event_build_fail:
+            logging.info("Sending error report to client")
             self.conn.sendall(sender.err)
         else:
             logging.error(resources.strings.ERR_UNEXPECTED_OBJECT, sender)
@@ -73,6 +84,7 @@ class q_server(object):
 
     def __bind_socket(self):
         try:
+            logging.info("Binding socket: " + str(self.addr) + ":" + str(self.port))
             self.tsocket.bind((self.addr, self.port))
 
         except socket.error as msg:
@@ -89,7 +101,7 @@ class q_server(object):
             while True:
                 self.conn, self.addr = self.tsocket.accept()
                 testconf = self.conn.recv(self.buf_size)
-                logging.info(resources.strings.TEST_RECV_CONF, testconf)
+                logging.info(resources.strings.TEST_RECV_CONF + testconf)
                 eqt = events.event_queue_test(testconf)
                 eqt.trigger()
 
