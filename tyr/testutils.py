@@ -11,9 +11,10 @@ from tyr import events
 
 parser = SafeConfigParser()
 logging.basicConfig(filename=resources.strings.LOG_FILE,
-        level=logging.DEBUG,
-        format=resources.strings.LOG_FORMAT,
-        datefmt=resources.strings.LOG_DATE)
+                    level=logging.DEBUG,
+                    format=resources.strings.LOG_FORMAT,
+                    datefmt=resources.strings.LOG_DATE)
+
 
 class compilers(object):
     """
@@ -29,7 +30,9 @@ class compilers(object):
         err = ""
         # Execute the compiler
         for i in range(len(inputList)):
-            cmd = c + " -o " + os.path.join(path, outputList[i]) + " " + os.path.join(path, inputList[i])
+            cmd = c + " -o " + \
+                os.path.join(path, outputList[i]) + \
+                " " + os.path.join(path, inputList[i])
             cmd = cmd.split(" ")
             ret = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
             err += ret
@@ -42,7 +45,9 @@ class compilers(object):
         err = ""
         # Execute the compiler
         for i in range(len(inputList)):
-            cmd = c + " -o " + os.path.join(path, outputList[i]) + " " + os.path.join(path, inputList[i])
+            cmd = c + " -o " + \
+                os.path.join(path, outputList[i]) + \
+                " " + os.path.join(path, inputList[i])
             for j in range(len(libsList)):
                 cmd += " --" + libsList[j]
             cmd = cmd.split(" ")
@@ -53,6 +58,7 @@ class compilers(object):
                 err += cpe.output
         return err
 
+
 class controller(object):
 
     def __create_isolated_dir(self):
@@ -61,7 +67,8 @@ class controller(object):
         path = os.path.join(self.path_testing, self.test_id)
         os.mkdir(path)
         # TODO: Cleanup this command
-        err = subprocess.check_call(["tar","xf",path+".tar.gz","-C",path,"--strip-components","1"])
+        err = subprocess.check_call(
+            ["tar", "xf", path + ".tar.gz", "-C", path, "--strip-components", "1"])
         self.path_testing = path
 
     def __get_testconf(self):
@@ -92,9 +99,11 @@ class controller(object):
         # Call the compiler
         err = ""
         if language == resources.strings.LANG_C:
-            err = compilers.gcc(self.path_testing, inputList, outputList, libsList)
+            err = compilers.gcc(self.path_testing,
+                                inputList, outputList, libsList)
         elif language == resources.strings.LANG_CPP:
-            err = compilers.gpp(self.path_testing, inputList, outputList, libsList)
+            err = compilers.gpp(self.path_testing,
+                                inputList, outputList, libsList)
         else:
             print resources.strings.ERR_NO_LANG + language
         return err
@@ -127,10 +136,14 @@ class controller(object):
 
         """
         parser.read(self.testconf)
-        language = parser.get(resources.strings.CONF_BUILD, resources.strings.CONF_LANG)
-        inputs = parser.get(resources.strings.CONF_BUILD, resources.strings.CONF_INPUT)
-        outputs = parser.get(resources.strings.CONF_BUILD, resources.strings.CONF_OUTPUT)
-        libs = parser.get(resources.strings.CONF_BUILD, resources.strings.CONF_LIBS)
+        language = parser.get(resources.strings.CONF_BUILD,
+                              resources.strings.CONF_LANG)
+        inputs = parser.get(resources.strings.CONF_BUILD,
+                            resources.strings.CONF_INPUT)
+        outputs = parser.get(resources.strings.CONF_BUILD,
+                             resources.strings.CONF_OUTPUT)
+        libs = parser.get(resources.strings.CONF_BUILD,
+                          resources.strings.CONF_LIBS)
         return self.__build(language, inputs, outputs, libs)
 
     def exec_test(self):
@@ -140,8 +153,10 @@ class controller(object):
 
         """
         parser.read(self.testconf)
-        cmdList = parser.get(resources.strings.CONF_TEST, resources.strings.CONF_EXEC)
+        cmdList = parser.get(resources.strings.CONF_TEST,
+                             resources.strings.CONF_EXEC)
         return self.__test(cmdList)
+
 
 class test_unit(object):
 

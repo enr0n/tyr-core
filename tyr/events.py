@@ -3,6 +3,7 @@ from pydispatch import dispatcher
 
 from tyr import resources
 
+
 class event_queue_test(object):
 
     def __init__(self, testconf):
@@ -11,6 +12,7 @@ class event_queue_test(object):
     def trigger(self):
         dispatcher.send(signal=resources.signals.SIG_INIT_TEST, sender=self)
 
+
 class event_test_done(object):
 
     def __init__(self, output):
@@ -18,6 +20,7 @@ class event_test_done(object):
 
     def trigger(self):
         dispatcher.send(signal=resources.signals.SIG_TEST_DONE, sender=self)
+
 
 class event_build_fail(object):
 

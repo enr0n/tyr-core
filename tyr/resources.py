@@ -76,6 +76,7 @@ class strings(object):
     CONF_BUF_SIZE = "buf_size"
     CONF_MAX_CONNS = "max_conns"
 
+
 class signals(object):
 
     SIG_INIT_TEST = "INIT_TEST"

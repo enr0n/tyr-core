@@ -11,9 +11,10 @@ from tyr import events
 from tyr import testutils
 
 logging.basicConfig(filename=resources.strings.LOG_FILE,
-        level=logging.DEBUG,
-        format=resources.strings.LOG_FORMAT,
-        datefmt=resources.strings.LOG_DATE)
+                    level=logging.DEBUG,
+                    format=resources.strings.LOG_FORMAT,
+                    datefmt=resources.strings.LOG_DATE)
+
 
 class test_queue(object):
 
@@ -23,7 +24,8 @@ class test_queue(object):
         self.q_size = q_size
         self.test_queue = Queue.Queue(maxsize=q_size)
         self.path_testing = path_testing
-        dispatcher.connect(self.__recv_test, signal=resources.signals.SIG_INIT_TEST, sender=dispatcher.Any)
+        dispatcher.connect(
+            self.__recv_test, signal=resources.signals.SIG_INIT_TEST, sender=dispatcher.Any)
 
     def __recv_test(self, sender):
         if type(sender) is events.event_queue_test:
@@ -45,6 +47,7 @@ class test_queue(object):
         t.daemon = True
         t.start()
 
+
 class q_server(object):
 
     def __init__(self):
@@ -54,14 +57,22 @@ class q_server(object):
         # Setup the server
         parser = SafeConfigParser()
         parser.read(self.srvr_conf)
-        self.addr = parser.get(resources.strings.CONF_HOST, resources.strings.CONF_ADDR)
-        self.port = int(parser.get(resources.strings.CONF_HOST, resources.strings.CONF_PORT))
-        self.q_size = int(parser.get(resources.strings.CONF_QUEUE, resources.strings.CONF_QSIZE))
-        self.max_conns = int(parser.get(resources.strings.CONF_DATA, resources.strings.CONF_MAX_CONNS))
-        self.buf_size = int(parser.get(resources.strings.CONF_DATA, resources.strings.CONF_BUF_SIZE))
-        self.path_testing = parser.get(resources.strings.CONF_TESTING, resources.strings.CONF_PATH)
-        dispatcher.connect(self.__send_output, signal=resources.signals.SIG_TEST_DONE, sender=dispatcher.Any)
-        dispatcher.connect(self.__send_error, signal=resources.signals.SIG_BUILD_FAIL, sender=dispatcher.Any)
+        self.addr = parser.get(resources.strings.CONF_HOST,
+                               resources.strings.CONF_ADDR)
+        self.port = int(parser.get(resources.strings.CONF_HOST,
+                                   resources.strings.CONF_PORT))
+        self.q_size = int(parser.get(
+            resources.strings.CONF_QUEUE, resources.strings.CONF_QSIZE))
+        self.max_conns = int(parser.get(
+            resources.strings.CONF_DATA, resources.strings.CONF_MAX_CONNS))
+        self.buf_size = int(parser.get(
+            resources.strings.CONF_DATA, resources.strings.CONF_BUF_SIZE))
+        self.path_testing = parser.get(
+            resources.strings.CONF_TESTING, resources.strings.CONF_PATH)
+        dispatcher.connect(
+            self.__send_output, signal=resources.signals.SIG_TEST_DONE, sender=dispatcher.Any)
+        dispatcher.connect(
+            self.__send_error, signal=resources.signals.SIG_BUILD_FAIL, sender=dispatcher.Any)
 
     def __send_output(self, sender):
         if type(sender) is events.event_test_done:
@@ -84,7 +95,8 @@ class q_server(object):
 
     def __bind_socket(self):
         try:
-            logging.info("Binding socket: " + str(self.addr) + ":" + str(self.port))
+            logging.info("Binding socket: " +
+                         str(self.addr) + ":" + str(self.port))
             self.tsocket.bind((self.addr, self.port))
 
         except socket.error as msg:
