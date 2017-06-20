@@ -15,7 +15,6 @@ logging.basicConfig(filename=resources.strings.LOG_FILE,
                     format=resources.strings.LOG_FORMAT,
                     datefmt=resources.strings.LOG_DATE)
 
-
 class test_queue(object):
 
     def __init__(self, q_size, path_testing):
