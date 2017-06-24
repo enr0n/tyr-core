@@ -2,8 +2,6 @@ TODO before github:
 
 * add appropriate strings to resources
 * clean up comments
-* add method comments
-* move logging to /dev/log
 * set base line version (for future PyPI)
 * test release candidates
 * setup.py

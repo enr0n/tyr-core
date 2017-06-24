@@ -19,7 +19,7 @@ class test_queue(object):
     """ queue for builds and tests """
 
     def __init__(self, q_size, path_testing):
-        log.info("Initializing test queue")
+        log.info(resources.strings.Q_INIT)
 
         self.q_size = q_size
         self.test_queue = Queue.Queue(maxsize=q_size)
@@ -30,7 +30,7 @@ class test_queue(object):
     def __recv_test(self, sender):
         """ handle test received signal """
         if type(sender) is events.event_queue_test:
-            log.info("Received queue request: " + sender.testconf)
+            log.info(resource.strings.Q_RECV + sender.testconf)
             self.test_queue.put(sender.testconf)
         else:
             log.error(resources.strings.ERR_UNEXPECTED_OBJECT, sender)
@@ -39,7 +39,7 @@ class test_queue(object):
         """ queue worker """
         while True:
             next_test = self.test_queue.get()
-            log.info("worker: initializing test unit for: " + next_test)
+            log.info(resources.strings.WORKER_INIT + next_test)
             t = testutils.test_unit(next_test, self.path_testing)
             t.run(True, True)
             self.test_queue.task_done()
@@ -87,7 +87,7 @@ class q_server(object):
     def __send_output(self, sender):
         """ send output to client """
         if type(sender) is events.event_test_done:
-            log.info("Sending output to client")
+            log.info(resources.strings.TEST_SEND_OUT)
             self.conn.sendall(sender.output)
         else:
             log.error(resources.strings.ERR_UNEXPECTED_OBJECT, sender)
@@ -96,7 +96,7 @@ class q_server(object):
     def __send_error(self, sender):
         """ send error to client """
         if type(sender) is events.event_build_fail:
-            log.info("Sending error report to client")
+            log.info(resources.strings.TEST_SEND_ERR)
             self.conn.sendall(sender.err)
         else:
             log.error(resources.strings.ERR_UNEXPECTED_OBJECT, sender)
@@ -109,8 +109,8 @@ class q_server(object):
     def __bind_socket(self):
         """ bind socket """
         try:
-            log.info("Binding socket: " +
-                         str(self.addr) + ":" + str(self.port))
+            log.debug('Binding socket: ' +
+                         str(self.addr) + ':' + str(self.port))
             self.tsocket.bind((self.addr, self.port))
 
         except socket.error as msg:

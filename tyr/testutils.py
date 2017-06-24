@@ -24,13 +24,13 @@ class compilers(object):
 
         # compiler name
         c = resources.strings.COMPILER_C
-        err = ""
+        err = ''
         # Execute the compiler
         for i in range(len(inputList)):
-            cmd = c + " -o " + \
+            cmd = c + ' -o ' + \
                 os.path.join(path, outputList[i]) + \
-                " " + os.path.join(path, inputList[i])
-            cmd = cmd.split(" ")
+                ' ' + os.path.join(path, inputList[i])
+            cmd = cmd.split(' ')
             ret = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
             err += ret
         return err
@@ -41,15 +41,15 @@ class compilers(object):
 
         # compiler name
         c = resources.strings.COMPILER_CPP
-        err = ""
+        err = ''
         # Execute the compiler
         for i in range(len(inputList)):
-            cmd = c + " -o " + \
+            cmd = c + ' -o ' + \
                 os.path.join(path, outputList[i]) + \
-                " " + os.path.join(path, inputList[i])
+                ' ' + os.path.join(path, inputList[i])
             for j in range(len(libsList)):
-                cmd += " --" + libsList[j]
-            cmd = cmd.split(" ")
+                cmd += ' --' + libsList[j]
+            cmd = cmd.split(' ')
             try:
                 ret = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
                 err += ret
@@ -62,22 +62,22 @@ class controller(object):
 
     def __create_isolated_dir(self):
         """ create an isolated directory for the build """
-        log.info("Creating isolated directory: " + self.test_id)
+        log.debug('Creating isolated directory: ' + self.test_id)
 
         path = os.path.join(self.path_testing, self.test_id)
         os.mkdir(path)
 
         err = subprocess.check_call(
-            ["tar", "xf", path + ".tar.gz", "-C", path, "--strip-components", "1"])
+            ['tar', 'xf', path + '.tar.gz', '-C', path, '--strip-components', '1'])
         self.path_testing = path
 
     def __get_testconf(self):
         """ get the test/build configuration """
-        log.debug(os.path.join(self.path_testing, "tyr.toml"))
-        return os.path.join(self.path_testing, "tyr.toml")
+        log.debug(os.path.join(self.path_testing, 'tyr.toml'))
+        return os.path.join(self.path_testing, 'tyr.toml')
 
     def __init__(self, path_testing, test_id):
-        log.info("Initializing test: " + test_id)
+        log.info(resources.strings.TEST_INIT + test_id)
 
         self.path_testing = path_testing
         self.test_id = test_id
@@ -88,14 +88,14 @@ class controller(object):
 
     def __build(self, language, inputList, outputList, libsList):
         """ build the source """
-        log.info("Building source: " + self.test_id)
+        log.info(resources.strings.TEST_BUILD + self.test_id)
 
-        inputList = inputList.split(",")
-        outputList = outputList.split(",")
-        libsList = libsList.split(",")
+        inputList = inputList.split(',')
+        outputList = outputList.split(',')
+        libsList = libsList.split(',')
 
         # Call the compiler
-        err = ""
+        err = ''
         if language == resources.strings.LANG_C:
             err = compilers.gcc(self.path_testing,
                                 inputList, outputList, libsList)
@@ -108,21 +108,19 @@ class controller(object):
 
     def __test(self, cmdList):
         """ execute the tests """
-        log.info("Running test: " + self.test_id)
+        log.info(resources.strings.TEST_EXEC + self.test_id)
 
-        cmdList = cmdList.split(",")
+        cmdList = cmdList.split(',')
         # Run the tests
         for i in range(len(cmdList)):
             cmd = os.path.join(self.path_testing, cmdList[i])
-            cmd = cmd.split(" ")
+            cmd = cmd.split(' ')
             ret = subprocess.check_output(cmd)
         return ret
 
     def clean(self):
         """ clean the directory """
-        log.info("Cleaning test: " + self.test_id)
-
-        path = os.path.normpath(os.path.join(self.path_testing, ".."))
+        path = os.path.normpath(os.path.join(self.path_testing, '..'))
         shutil.rmtree(path)
 
     def build_test(self):
@@ -149,7 +147,7 @@ class controller(object):
 class test_unit(object):
 
     def __init__(self, test_id, path_testing):
-        log.debug("init:" + test_id)
+        log.debug('init:' + test_id)
         self.controller = controller(path_testing, test_id)
 
     def run(self, do_compile, do_exec):
