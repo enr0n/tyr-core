@@ -103,7 +103,7 @@ class controller(object):
             err = compilers.gpp(self.path_testing,
                                 inputList, outputList, libsList)
         else:
-            print resources.strings.ERR_NO_LANG + language
+            log.error(resources.strings.ERR_NO_LANG + language)
         return err
 
     def __test(self, cmdList):
@@ -155,16 +155,13 @@ class test_unit(object):
         """ run the build/test """
         output = ""
         if do_compile:
-            print resources.strings.TEST_BUILD
             err = self.controller.build_test()
             if err:
-                print resources.strings.ERR_BUILD_FAILED, err
+                log.error(resources.strings.ERR_BUILD_FAILED + err)
                 ebf = events.event_build_fail(err, self.test_id)
                 ebf.trigger()
                 do_exec = False
 
         if do_exec:
-            print resources.strings.TEST_EXEC
-            output = self.controller.exec_test()
             etd = events.event_test_done(output, self.test_id)
             etd.trigger()

@@ -54,7 +54,6 @@ class test_queue(object):
 class q_server(object):
 
     def __init__(self):
-        log.info("Initializing server")
 
         # Dictionary for test's socket
         self.conns = {}
