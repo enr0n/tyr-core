@@ -1,9 +1,5 @@
 class strings(object):
-    """
-    This class contains a collection of string literals
-    used throughout tyr core
 
-    """
     # Filesystem
     FS_SRVR_CONF = '/etc/tyr/conf'
 

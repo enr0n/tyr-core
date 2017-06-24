@@ -11,7 +11,7 @@ from tyr import resources
 from tyr import events
 from tyr import testutils
 
-log = logging.getLogger('')
+log = logging.getLogger('server-utils')
 log.setLevel(logging.DEBUG)
 log.addHandler(logging.handlers.SysLogHandler(address='/dev/log'))
 
@@ -30,7 +30,7 @@ class test_queue(object):
     def __recv_test(self, sender):
         """ handle test received signal """
         if type(sender) is events.event_queue_test:
-            log.info(resource.strings.Q_RECV + sender.testconf)
+            log.info(resources.strings.Q_RECV + sender.testconf)
             self.test_queue.put(sender.testconf)
         else:
             log.error(resources.strings.ERR_UNEXPECTED_OBJECT, sender)

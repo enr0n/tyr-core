@@ -12,7 +12,7 @@ from tyr import events
 
 parser = SafeConfigParser()
 
-log = logging.getLogger('')
+log = logging.getLogger('test-utils')
 log.setLevel(logging.DEBUG)
 log.addHandler(logging.handlers.SysLogHandler(address='/dev/log'))
 

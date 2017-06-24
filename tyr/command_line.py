@@ -6,4 +6,3 @@ def main():
     print resources.strings.SRVR_START
     server = serverutils.q_server()
     server.start()
-    print resources.strings.SRVR_INIT_DONE
