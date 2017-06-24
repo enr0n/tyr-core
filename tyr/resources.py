@@ -1,15 +1,13 @@
 class strings(object):
     """
     This class contains a collection of string literals
-    used throughout the loki server
+    used throughout tyr core
 
     """
     # Filesystem
     FS_SRVR_CONF = "/etc/tyr/conf"
 
     # Logging
-    # TODO: want to log to /var/log/
-    LOG_FILE = "/home/pi/tyrlog"
     LOG_DATE = '%m/%d/%Y %I:%M:%S %p'
     LOG_FORMAT = '%(asctime)s %(levelname)s:%(message)s'
 

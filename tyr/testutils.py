@@ -17,14 +17,11 @@ logging.basicConfig(filename=resources.strings.LOG_FILE,
 
 
 class compilers(object):
-    """
-    Each method in the compiler class is meant to
-    emulate a different compiler. New methods can
-    be added here to support new languages
 
-    """
     @staticmethod
     def gcc(path, inputList, outputList, libsList):
+        """ call the gcc compiler """
+
         # compiler name
         c = resources.strings.COMPILER_C
         err = ""
@@ -40,6 +37,8 @@ class compilers(object):
 
     @staticmethod
     def gpp(path, inputList, outputList, libsList):
+        """ call the gpp compiler """
+
         # compiler name
         c = resources.strings.COMPILER_CPP
         err = ""
@@ -62,16 +61,18 @@ class compilers(object):
 class controller(object):
 
     def __create_isolated_dir(self):
+        """ create an isolated directory for the build """
         logging.info("Creating isolated directory: " + self.test_id)
 
         path = os.path.join(self.path_testing, self.test_id)
         os.mkdir(path)
-        # TODO: Cleanup this command
+
         err = subprocess.check_call(
             ["tar", "xf", path + ".tar.gz", "-C", path, "--strip-components", "1"])
         self.path_testing = path
 
     def __get_testconf(self):
+        """ get the test/build configuration """
         logging.debug(os.path.join(self.path_testing, "tyr.toml"))
         return os.path.join(self.path_testing, "tyr.toml")
 
@@ -86,10 +87,7 @@ class controller(object):
         self.testconf = self.__get_testconf()
 
     def __build(self, language, inputList, outputList, libsList):
-        """
-        Compile all source in the test directory
-
-        """
+        """ build the source """
         logging.info("Building source: " + self.test_id)
 
         inputList = inputList.split(",")
@@ -109,10 +107,7 @@ class controller(object):
         return err
 
     def __test(self, cmdList):
-        """
-        Run the specified tests
-
-        """
+        """ execute the tests """
         logging.info("Running test: " + self.test_id)
 
         cmdList = cmdList.split(",")
@@ -124,17 +119,14 @@ class controller(object):
         return ret
 
     def clean(self):
+        """ clean the directory """
         logging.info("Cleaning test: " + self.test_id)
 
         path = os.path.normpath(os.path.join(self.path_testing, ".."))
         shutil.rmtree(path)
 
     def build_test(self):
-        """
-        Build the test based on
-        testconf
-
-        """
+        """ call __build with conf """
         parser.read(self.testconf)
         language = parser.get(resources.strings.CONF_BUILD,
                               resources.strings.CONF_LANG)
@@ -147,11 +139,7 @@ class controller(object):
         return self.__build(language, inputs, outputs, libs)
 
     def exec_test(self):
-        """
-        Execute the test based on
-        testconf
-
-        """
+        """ call __test with conf """
         parser.read(self.testconf)
         cmdList = parser.get(resources.strings.CONF_TEST,
                              resources.strings.CONF_EXEC)
@@ -165,6 +153,7 @@ class test_unit(object):
         self.controller = controller(path_testing, test_id)
 
     def run(self, do_compile, do_exec):
+        """ run the build/test """
         output = ""
         if do_compile:
             print resources.strings.TEST_BUILD
