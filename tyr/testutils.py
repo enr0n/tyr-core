@@ -149,6 +149,7 @@ class test_unit(object):
     def __init__(self, test_id, path_testing):
         log.debug('init:' + test_id)
         self.controller = controller(path_testing, test_id)
+        self.test_id = test_id
 
     def run(self, do_compile, do_exec):
         """ run the build/test """
@@ -158,12 +159,12 @@ class test_unit(object):
             err = self.controller.build_test()
             if err:
                 print resources.strings.ERR_BUILD_FAILED, err
-                ebf = events.event_build_fail(err)
+                ebf = events.event_build_fail(err, self.test_id)
                 ebf.trigger()
                 do_exec = False
 
         if do_exec:
             print resources.strings.TEST_EXEC
             output = self.controller.exec_test()
-            etd = events.event_test_done(output)
+            etd = events.event_test_done(output, self.test_id)
             etd.trigger()

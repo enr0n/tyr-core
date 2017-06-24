@@ -30,8 +30,8 @@ class test_queue(object):
     def __recv_test(self, sender):
         """ handle test received signal """
         if type(sender) is events.event_queue_test:
-            log.info(resources.strings.Q_RECV + sender.testconf)
-            self.test_queue.put(sender.testconf)
+            log.info(resources.strings.Q_RECV + sender.test_id)
+            self.test_queue.put(sender.test_id)
         else:
             log.error(resources.strings.ERR_UNEXPECTED_OBJECT, sender)
 
@@ -55,6 +55,9 @@ class q_server(object):
 
     def __init__(self):
         log.info("Initializing server")
+
+        # Dictionary for test's socket
+        self.conns = {}
 
         self.srvr_conf = resources.strings.FS_SRVR_CONF
         # Setup the server
@@ -88,7 +91,7 @@ class q_server(object):
         """ send output to client """
         if type(sender) is events.event_test_done:
             log.info(resources.strings.TEST_SEND_OUT)
-            self.conn.sendall(sender.output)
+            self.conns[sender.test_id].sendall(sender.output)
         else:
             log.error(resources.strings.ERR_UNEXPECTED_OBJECT, sender)
             sys.exit(-1)
@@ -97,7 +100,7 @@ class q_server(object):
         """ send error to client """
         if type(sender) is events.event_build_fail:
             log.info(resources.strings.TEST_SEND_ERR)
-            self.conn.sendall(sender.err)
+            self.conns[sender.test_id].sendall(sender.err)
         else:
             log.error(resources.strings.ERR_UNEXPECTED_OBJECT, sender)
             sys.exit(-1)
@@ -127,10 +130,14 @@ class q_server(object):
         try:
             self.tsocket.listen(self.max_conns)
             while True:
-                self.conn, self.addr = self.tsocket.accept()
-                testconf = self.conn.recv(self.buf_size)
-                log.info(resources.strings.TEST_RECV_CONF + testconf)
-                eqt = events.event_queue_test(testconf)
+                conn, addr = self.tsocket.accept()
+
+                test_id = conn.recv(self.buf_size)
+                self.conns[test_id] = conn
+
+                log.info(resources.strings.TEST_RECV_CONF + test_id)
+
+                eqt = events.event_queue_test(test_id)
                 eqt.trigger()
 
         except KeyboardInterrupt:
