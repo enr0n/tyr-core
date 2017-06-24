@@ -4,17 +4,17 @@ import subprocess
 import shutil
 import string
 import logging
+import logging.handlers
 from ConfigParser import SafeConfigParser
 
 from tyr import resources
 from tyr import events
 
 parser = SafeConfigParser()
-logging.basicConfig(filename=resources.strings.LOG_FILE,
-                    level=logging.DEBUG,
-                    format=resources.strings.LOG_FORMAT,
-                    datefmt=resources.strings.LOG_DATE)
 
+log = logging.getLogger('')
+log.setLevel(logging.DEBUG)
+log.addHandler(logging.handlers.SysLogHandler(address='/dev/log'))
 
 class compilers(object):
 
@@ -62,7 +62,7 @@ class controller(object):
 
     def __create_isolated_dir(self):
         """ create an isolated directory for the build """
-        logging.info("Creating isolated directory: " + self.test_id)
+        log.info("Creating isolated directory: " + self.test_id)
 
         path = os.path.join(self.path_testing, self.test_id)
         os.mkdir(path)
@@ -73,11 +73,11 @@ class controller(object):
 
     def __get_testconf(self):
         """ get the test/build configuration """
-        logging.debug(os.path.join(self.path_testing, "tyr.toml"))
+        log.debug(os.path.join(self.path_testing, "tyr.toml"))
         return os.path.join(self.path_testing, "tyr.toml")
 
     def __init__(self, path_testing, test_id):
-        logging.info("Initializing test: " + test_id)
+        log.info("Initializing test: " + test_id)
 
         self.path_testing = path_testing
         self.test_id = test_id
@@ -88,7 +88,7 @@ class controller(object):
 
     def __build(self, language, inputList, outputList, libsList):
         """ build the source """
-        logging.info("Building source: " + self.test_id)
+        log.info("Building source: " + self.test_id)
 
         inputList = inputList.split(",")
         outputList = outputList.split(",")
@@ -108,7 +108,7 @@ class controller(object):
 
     def __test(self, cmdList):
         """ execute the tests """
-        logging.info("Running test: " + self.test_id)
+        log.info("Running test: " + self.test_id)
 
         cmdList = cmdList.split(",")
         # Run the tests
@@ -120,7 +120,7 @@ class controller(object):
 
     def clean(self):
         """ clean the directory """
-        logging.info("Cleaning test: " + self.test_id)
+        log.info("Cleaning test: " + self.test_id)
 
         path = os.path.normpath(os.path.join(self.path_testing, ".."))
         shutil.rmtree(path)
@@ -149,7 +149,7 @@ class controller(object):
 class test_unit(object):
 
     def __init__(self, test_id, path_testing):
-        logging.debug("init:" + test_id)
+        log.debug("init:" + test_id)
         self.controller = controller(path_testing, test_id)
 
     def run(self, do_compile, do_exec):
