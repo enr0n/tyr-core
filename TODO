@@ -1,7 +1,5 @@
 TODO before github:
 
-* add appropriate strings to resources
-* clean up comments
 * set base line version (for future PyPI)
 * test release candidates
 * setup.py

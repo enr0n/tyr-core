@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='tyr',
-      version='1.1',
+      version='1.0',
       description='lightweight build-and-test server',
       url='',
       author='Nick Rosbrook',
@@ -9,7 +9,7 @@ setup(name='tyr',
       license='MIT',
       packages=['tyr'],
       entry_points = {
-          'console_scripts': ['tyr=tyr.command_line:main'],
+          'console_scripts': ['tyr-server=tyr.command_line:main'],
       },
       install_requires=[
           'ConfigParser',
