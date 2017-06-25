@@ -91,6 +91,9 @@ class q_server(object):
         if type(sender) is events.event_test_done:
             log.info(resources.strings.TEST_SEND_OUT)
             self.conns[sender.test_id].sendall(sender.output)
+
+            # Remove connection from dictionary
+            del self.conns[sender.test_id]
         else:
             log.error(resources.strings.ERR_UNEXPECTED_OBJECT, sender)
             sys.exit(-1)
@@ -100,6 +103,9 @@ class q_server(object):
         if type(sender) is events.event_build_fail:
             log.info(resources.strings.TEST_SEND_ERR)
             self.conns[sender.test_id].sendall(sender.err)
+
+            # Remove connection froms dictionary
+            del self.conns[sender.test_id]
         else:
             log.error(resources.strings.ERR_UNEXPECTED_OBJECT, sender)
             sys.exit(-1)
