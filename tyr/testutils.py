@@ -26,13 +26,22 @@ class compilers(object):
         c = resources.strings.COMPILER_C
         err = ''
         # Execute the compiler
-        for i in range(len(inputList)):
+        for f_in, f_out in zip(inputList, outputList):
             cmd = c + ' -o ' + \
-                os.path.join(path, outputList[i]) + \
-                ' ' + os.path.join(path, inputList[i])
+                os.path.join(path, f_out) + \
+                ' ' + os.path.join(path, f_in)
+
+            # Add libs to command
+            for lib in libsList:
+                cmd += ' --' + lib
+
+            # Create list to pass to subprocess
             cmd = cmd.split(' ')
-            ret = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-            err += ret
+            try:
+                ret = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+                err += ret
+            except subprocess.CalledProcessError as cpe:
+                err += cpe.output
         return err
 
     @staticmethod
@@ -43,12 +52,16 @@ class compilers(object):
         c = resources.strings.COMPILER_CPP
         err = ''
         # Execute the compiler
-        for i in range(len(inputList)):
+        for f_in, f_out in zip(inputList, outputList):
             cmd = c + ' -o ' + \
-                os.path.join(path, outputList[i]) + \
-                ' ' + os.path.join(path, inputList[i])
-            for j in range(len(libsList)):
-                cmd += ' --' + libsList[j]
+                os.path.join(path, f_out) + \
+                ' ' + os.path.join(path, f_in)
+
+            # Add libs to command
+            for lib in libsList:
+                cmd += ' --' + lib
+
+            # Create list to pass to subprocess
             cmd = cmd.split(' ')
             try:
                 ret = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
@@ -82,9 +95,9 @@ class controller(object):
         self.path_testing = path_testing
         self.test_id = test_id
 
-        self.__create_isolated_dir()
+        self._create_isolated_dir()
 
-        self.testconf = self.__get_testconf()
+        self.testconf = self._get_testconf()
 
     def _build(self, language, inputList, outputList, libsList):
         """ build the source """
@@ -92,18 +105,23 @@ class controller(object):
 
         inputList = inputList.split(',')
         outputList = outputList.split(',')
-        libsList = libsList.split(',')
+        if libsList:
+            libsList = libsList.split(',')
 
+
+        compiler = { resources.strings.LANG_C: compilers.gcc,
+                     resources.strings.LANG_CPP: compilers.gpp }
         # Call the compiler
         err = ''
-        if language == resources.strings.LANG_C:
-            err = compilers.gcc(self.path_testing,
-                                inputList, outputList, libsList)
-        elif language == resources.strings.LANG_CPP:
-            err = compilers.gpp(self.path_testing,
-                                inputList, outputList, libsList)
-        else:
+        try:
+            err = compiler[language](self.path_testing,
+                                     inputList,
+                                     outputList,
+                                     libsList)
+        except KeyError:
             log.error(resources.strings.ERR_NO_LANG + language)
+            err = resources.strings.ERR_NO_LANG + language
+
         return err
 
     def _test(self, cmdList):
@@ -163,5 +181,7 @@ class test_unit(object):
                 do_exec = False
 
         if do_exec:
+            log.info(resources.strings.TEST_EXEC)
+            output = self.controller.exec_test()
             etd = events.event_test_done(output, self.test_id)
             etd.trigger()
