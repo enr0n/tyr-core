@@ -25,9 +25,9 @@ class test_queue(object):
         self.test_queue = Queue.Queue(maxsize=q_size)
         self.path_testing = path_testing
         dispatcher.connect(
-            self.__recv_test, signal=resources.signals.SIG_INIT_TEST, sender=dispatcher.Any)
+            self._recv_test, signal=resources.signals.SIG_INIT_TEST, sender=dispatcher.Any)
 
-    def __recv_test(self, sender):
+    def _recv_test(self, sender):
         """ handle test received signal """
         if type(sender) is events.event_queue_test:
             log.info(resources.strings.Q_RECV + sender.test_id)
@@ -35,7 +35,7 @@ class test_queue(object):
         else:
             log.error(resources.strings.ERR_UNEXPECTED_OBJECT, sender)
 
-    def __worker(self):
+    def _worker(self):
         """ queue worker """
         while True:
             next_test = self.test_queue.get()
@@ -46,7 +46,7 @@ class test_queue(object):
 
     def start_daemon(self):
         """ start the worker """
-        t = Thread(target=self.__worker)
+        t = Thread(target=self._worker)
         t.daemon = True
         t.start()
 
@@ -86,7 +86,7 @@ class q_server(object):
         dispatcher.connect(
             self.__send_error, signal=resources.signals.SIG_BUILD_FAIL, sender=dispatcher.Any)
 
-    def __send_output(self, sender):
+    def _send_output(self, sender):
         """ send output to client """
         if type(sender) is events.event_test_done:
             log.info(resources.strings.TEST_SEND_OUT)
@@ -95,7 +95,7 @@ class q_server(object):
             log.error(resources.strings.ERR_UNEXPECTED_OBJECT, sender)
             sys.exit(-1)
 
-    def __send_error(self, sender):
+    def _send_error(self, sender):
         """ send error to client """
         if type(sender) is events.event_build_fail:
             log.info(resources.strings.TEST_SEND_ERR)
@@ -104,11 +104,11 @@ class q_server(object):
             log.error(resources.strings.ERR_UNEXPECTED_OBJECT, sender)
             sys.exit(-1)
 
-    def __create(self):
+    def _create(self):
         """ create socket """
         self.tsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    def __bind_socket(self):
+    def _bind_socket(self):
         """ bind socket """
         try:
             log.debug('Binding socket: ' +
@@ -119,12 +119,12 @@ class q_server(object):
             log.error(resources.strings.ERR_SOCK_BIND + str(msg[0]))
             sys.exit(-1)
 
-    def __init_queue(self):
+    def _init_queue(self):
         """ create test queue """
         tq = test_queue(self.q_size, self.path_testing)
         tq.start_daemon()
 
-    def __socket_listen(self):
+    def _socket_listen(self):
         """ listen for connections """
         try:
             self.tsocket.listen(self.max_conns)
@@ -149,7 +149,7 @@ class q_server(object):
 
     def start(self):
         """ convenience method to start server """
-        self.__create()
-        self.__bind_socket()
-        self.__init_queue()
-        self.__socket_listen()
+        self._create()
+        self._bind_socket()
+        self._init_queue()
+        self._socket_listen()
