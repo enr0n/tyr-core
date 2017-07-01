@@ -81,10 +81,10 @@ class q_server(object):
             resources.strings.CONF_TESTING, resources.strings.CONF_PATH)
 
         dispatcher.connect(
-            self.__send_output, signal=resources.signals.SIG_TEST_DONE, sender=dispatcher.Any)
+            self._send_output, signal=resources.signals.SIG_TEST_DONE, sender=dispatcher.Any)
 
         dispatcher.connect(
-            self.__send_error, signal=resources.signals.SIG_BUILD_FAIL, sender=dispatcher.Any)
+            self._send_error, signal=resources.signals.SIG_BUILD_FAIL, sender=dispatcher.Any)
 
     def _send_output(self, sender):
         """ send output to client """

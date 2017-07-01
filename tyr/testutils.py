@@ -60,7 +60,7 @@ class compilers(object):
 
 class controller(object):
 
-    def __create_isolated_dir(self):
+    def _create_isolated_dir(self):
         """ create an isolated directory for the build """
         log.debug('Creating isolated directory: ' + self.test_id)
 
@@ -71,7 +71,7 @@ class controller(object):
             ['tar', 'xf', path + '.tar.gz', '-C', path, '--strip-components', '1'])
         self.path_testing = path
 
-    def __get_testconf(self):
+    def _get_testconf(self):
         """ get the test/build configuration """
         log.debug(os.path.join(self.path_testing, 'tyr.toml'))
         return os.path.join(self.path_testing, 'tyr.toml')
@@ -86,7 +86,7 @@ class controller(object):
 
         self.testconf = self.__get_testconf()
 
-    def __build(self, language, inputList, outputList, libsList):
+    def _build(self, language, inputList, outputList, libsList):
         """ build the source """
         log.info(resources.strings.TEST_BUILD + self.test_id)
 
@@ -106,7 +106,7 @@ class controller(object):
             log.error(resources.strings.ERR_NO_LANG + language)
         return err
 
-    def __test(self, cmdList):
+    def _test(self, cmdList):
         """ execute the tests """
         log.info(resources.strings.TEST_EXEC + self.test_id)
 
@@ -134,14 +134,14 @@ class controller(object):
                              resources.strings.CONF_OUTPUT)
         libs = parser.get(resources.strings.CONF_BUILD,
                           resources.strings.CONF_LIBS)
-        return self.__build(language, inputs, outputs, libs)
+        return self._build(language, inputs, outputs, libs)
 
     def exec_test(self):
         """ call __test with conf """
         parser.read(self.testconf)
         cmdList = parser.get(resources.strings.CONF_TEST,
                              resources.strings.CONF_EXEC)
-        return self.__test(cmdList)
+        return self._test(cmdList)
 
 
 class test_unit(object):
