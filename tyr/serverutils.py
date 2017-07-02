@@ -24,8 +24,9 @@ class test_queue(object):
         self.q_size = q_size
         self.test_queue = Queue.Queue(maxsize=q_size)
         self.path_testing = path_testing
-        dispatcher.connect(
-            self._recv_test, signal=resources.signals.SIG_INIT_TEST, sender=dispatcher.Any)
+        dispatcher.connect(self._recv_test,
+                           signal=resources.signals.SIG_INIT_TEST,
+                           sender=dispatcher.Any)
 
     def _recv_test(self, sender):
         """ handle test received signal """
@@ -68,23 +69,25 @@ class q_server(object):
         self.port = int(parser.get(resources.strings.CONF_HOST,
                                    resources.strings.CONF_PORT))
 
-        self.q_size = int(parser.get(
-            resources.strings.CONF_QUEUE, resources.strings.CONF_QSIZE))
+        self.q_size = int(parser.get(resources.strings.CONF_QUEUE,
+                                     resources.strings.CONF_QSIZE))
 
-        self.max_conns = int(parser.get(
-            resources.strings.CONF_DATA, resources.strings.CONF_MAX_CONNS))
+        self.max_conns = int(parser.get(resources.strings.CONF_DATA,
+                                        resources.strings.CONF_MAX_CONNS))
 
-        self.buf_size = int(parser.get(
-            resources.strings.CONF_DATA, resources.strings.CONF_BUF_SIZE))
+        self.buf_size = int(parser.get(resources.strings.CONF_DATA,
+                                       resources.strings.CONF_BUF_SIZE))
 
-        self.path_testing = parser.get(
-            resources.strings.CONF_TESTING, resources.strings.CONF_PATH)
+        self.path_testing = parser.get(resources.strings.CONF_TESTING,
+                                       resources.strings.CONF_PATH)
 
-        dispatcher.connect(
-            self._send_output, signal=resources.signals.SIG_TEST_DONE, sender=dispatcher.Any)
+        dispatcher.connect(self._send_output,
+                           signal=resources.signals.SIG_TEST_DONE,
+                           sender=dispatcher.Any)
 
-        dispatcher.connect(
-            self._send_error, signal=resources.signals.SIG_BUILD_FAIL, sender=dispatcher.Any)
+        dispatcher.connect(self._send_error,
+                           signal=resources.signals.SIG_BUILD_FAIL,
+                           sender=dispatcher.Any)
 
     def _send_output(self, sender):
         """ send output to client """
