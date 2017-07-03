@@ -79,7 +79,7 @@ class q_server(object):
         # Check for server config
         if not os.path.isfile(self.srvr_conf):
             log.error(resources.strings.ERR_NO_CONF)
-            sys.stdout.write(resources.strings.ERR_NO_CONF)
+            sys.stderr.write(resources.strings.ERR_NO_CONF)
             sys.exit(-1)
 
         # Parse the config file
@@ -105,8 +105,13 @@ class q_server(object):
                                            resources.strings.CONF_PATH)
 
         except ConfigParser.NoSectionError as nse:
-            log.error(nse)
-            sys.stderr.write(nse)
+            log.error(str(nse))
+            sys.stderr.write(str(nse)+'\n')
+            sys.exit(-1)
+
+        except ConfigParser.NoOptionError as noe:
+            log.error(str(noe))
+            sys.stderr.write(str(noe)+'\n')
             sys.exit(-1)
 
     def _send_output(self, sender):
