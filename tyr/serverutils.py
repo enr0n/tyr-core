@@ -1,10 +1,11 @@
+import os
 import sys
 import socket
 import Queue
 import logging
 import logging.handlers
+import ConfigParser
 from threading import Thread
-from ConfigParser import SafeConfigParser
 from pydispatch import dispatcher
 
 from tyr import resources
@@ -61,26 +62,9 @@ class q_server(object):
 
         self.srvr_conf = resources.strings.FS_SRVR_CONF
         # Setup the server
-        parser = SafeConfigParser()
-        parser.read(self.srvr_conf)
-        self.addr = parser.get(resources.strings.CONF_HOST,
-                               resources.strings.CONF_ADDR)
+        self._config_server()
 
-        self.port = int(parser.get(resources.strings.CONF_HOST,
-                                   resources.strings.CONF_PORT))
-
-        self.q_size = int(parser.get(resources.strings.CONF_QUEUE,
-                                     resources.strings.CONF_QSIZE))
-
-        self.max_conns = int(parser.get(resources.strings.CONF_DATA,
-                                        resources.strings.CONF_MAX_CONNS))
-
-        self.buf_size = int(parser.get(resources.strings.CONF_DATA,
-                                       resources.strings.CONF_BUF_SIZE))
-
-        self.path_testing = parser.get(resources.strings.CONF_TESTING,
-                                       resources.strings.CONF_PATH)
-
+        # Setup event handlers
         dispatcher.connect(self._send_output,
                            signal=resources.signals.SIG_TEST_DONE,
                            sender=dispatcher.Any)
@@ -88,6 +72,42 @@ class q_server(object):
         dispatcher.connect(self._send_error,
                            signal=resources.signals.SIG_BUILD_FAIL,
                            sender=dispatcher.Any)
+
+    def _config_server(self):
+        """ get settings from config """
+
+        # Check for server config
+        if not os.path.isfile(self.srvr_conf):
+            log.error(resources.strings.ERR_NO_CONF)
+            sys.stdout.write(resources.strings.ERR_NO_CONF)
+            sys.exit(-1)
+
+        # Parse the config file
+        parser = ConfigParser.SafeConfigParser()
+        try:
+            parser.read(self.srvr_conf)
+            self.addr = parser.get(resources.strings.CONF_HOST,
+                                   resources.strings.CONF_ADDR)
+
+            self.port = int(parser.get(resources.strings.CONF_HOST,
+                                       resources.strings.CONF_PORT))
+
+            self.q_size = int(parser.get(resources.strings.CONF_QUEUE,
+                                         resources.strings.CONF_QSIZE))
+
+            self.max_conns = int(parser.get(resources.strings.CONF_DATA,
+                                            resources.strings.CONF_MAX_CONNS))
+
+            self.buf_size = int(parser.get(resources.strings.CONF_DATA,
+                                           resources.strings.CONF_BUF_SIZE))
+
+            self.path_testing = parser.get(resources.strings.CONF_TESTING,
+                                           resources.strings.CONF_PATH)
+
+        except ConfigParser.NoSectionError as nse:
+            log.error(nse)
+            sys.stderr.write(nse)
+            sys.exit(-1)
 
     def _send_output(self, sender):
         """ send output to client """
@@ -113,7 +133,7 @@ class q_server(object):
             log.error(resources.strings.ERR_UNEXPECTED_OBJECT, sender)
             sys.exit(-1)
 
-    def _create(self):
+    def _create_sock(self):
         """ create socket """
         self.tsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -158,7 +178,7 @@ class q_server(object):
 
     def start(self):
         """ convenience method to start server """
-        self._create()
+        self._create_sock()
         self._bind_socket()
         self._init_queue()
         self._socket_listen()

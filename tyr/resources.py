@@ -47,6 +47,7 @@ class strings(object):
     ERR_UNEXPECTED_OBJECT = 'Error: received unexpected object: '
     ERR_SOCK_BIND = 'Error: could not bind socket: '
     ERR_BUILD_FAILED = 'Error: builed failed: '
+    ERR_NO_CONF = 'Error: No server configuration found\n'
 
     # Exceptions
     EXCEP_KB_INT = 'User interrupted server'
