@@ -41,17 +41,20 @@ class test_queue(object):
         """ queue worker """
         while True:
             next_test = self.test_queue.get()
-            log.info(resources.strings.WORKER_INIT + next_test)
-            t = testutils.test_unit(next_test, self.path_testing)
-            t.run(True, True)
-            self.test_queue.task_done()
+            try:
+                log.info(resources.strings.WORKER_INIT + next_test)
+                t = testutils.test_unit(next_test, self.path_testing)
+                t.run(True, True)
+                self.test_queue.task_done()
+            except:
+                eue = events.event_uncaught_exception(next_test)
+                eue.trigger()
 
     def start_daemon(self):
         """ start the worker """
         t = Thread(target=self._worker)
         t.daemon = True
         t.start()
-
 
 class q_server(object):
 
@@ -71,6 +74,10 @@ class q_server(object):
 
         dispatcher.connect(self._send_error,
                            signal=resources.signals.SIG_BUILD_FAIL,
+                           sender=dispatcher.Any)
+
+        dispatcher.connect(self._notify_exception,
+                           signal=resources.signals.SIG_UNCAUGHT_EXCEP,
                            sender=dispatcher.Any)
 
     def _config_server(self):
@@ -113,6 +120,17 @@ class q_server(object):
             log.error(str(noe))
             sys.stderr.write(str(noe)+'\n')
             sys.exit(-1)
+
+    def _notify_exception(self, sender):
+        """ notify client of unhandled exception """
+        if type(sender) is events.event_uncaught_exception:
+            log.info(sender.err)
+            self.conns[sender.test_id].sendall(sender.err)
+
+            # Remove connection from dictionary
+            del self.conns[sender.test_id]
+        else:
+            log.error(resources.strings.ERR_UNEXPECTED_OBJECT, sender)
 
     def _send_output(self, sender):
         """ send output to client """

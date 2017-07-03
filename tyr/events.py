@@ -31,3 +31,12 @@ class event_build_fail(object):
 
     def trigger(self):
         dispatcher.send(signal=resources.signals.SIG_BUILD_FAIL, sender=self)
+
+class event_uncaught_exception(object):
+
+    def __init__(self, test_id):
+        self.test_id = test_id
+        self.err = (resources.strings.ERR_UNCAUGHT_EXCEP % self.test_id)
+
+    def trigger(self):
+        dispatcher.send(signal=resources.signals.SIG_UNCAUGHT_EXCEP, sender=self)

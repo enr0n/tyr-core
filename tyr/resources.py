@@ -48,6 +48,7 @@ class strings(object):
     ERR_SOCK_BIND = 'Error: could not bind socket: '
     ERR_BUILD_FAILED = 'Error: builed failed: '
     ERR_NO_CONF = 'Error: No server configuration found\n'
+    ERR_UNCAUGHT_EXCEP = 'Error: the server caught an unhandled exception while running job %s'
 
     # Exceptions
     EXCEP_KB_INT = 'User interrupted server'
@@ -85,3 +86,4 @@ class signals(object):
     SIG_INIT_TEST = 'INIT_TEST'
     SIG_TEST_DONE = 'TEST_DONE'
     SIG_BUILD_FAIL = 'BUILD_FAIL'
+    SIG_UNCAUGHT_EXCEP = 'UNCAUGHT_EXCEP'
