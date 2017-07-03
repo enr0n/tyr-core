@@ -5,12 +5,12 @@ import shutil
 import string
 import logging
 import logging.handlers
-from ConfigParser import SafeConfigParser
+import ConfigParser
 
 from tyr import resources
 from tyr import events
 
-parser = SafeConfigParser()
+parser = ConfigParser.SafeConfigParser()
 
 log = logging.getLogger('test-utils')
 log.setLevel(logging.DEBUG)
@@ -142,25 +142,42 @@ class controller(object):
         shutil.rmtree(path)
 
     def build_test(self):
-        """ call __build with conf """
-        parser.read(self.testconf)
-        language = parser.get(resources.strings.CONF_BUILD,
-                              resources.strings.CONF_LANG)
-        inputs = parser.get(resources.strings.CONF_BUILD,
-                            resources.strings.CONF_INPUT)
-        outputs = parser.get(resources.strings.CONF_BUILD,
-                             resources.strings.CONF_OUTPUT)
-        libs = parser.get(resources.strings.CONF_BUILD,
-                          resources.strings.CONF_LIBS)
-        return self._build(language, inputs, outputs, libs)
+        """ call _build with conf """
+        try:
+            parser.read(self.testconf)
+            language = parser.get(resources.strings.CONF_BUILD,
+                                  resources.strings.CONF_LANG)
+            inputs = parser.get(resources.strings.CONF_BUILD,
+                                resources.strings.CONF_INPUT)
+            outputs = parser.get(resources.strings.CONF_BUILD,
+                                 resources.strings.CONF_OUTPUT)
+            libs = parser.get(resources.strings.CONF_BUILD,
+                              resources.strings.CONF_LIBS)
+            return self._build(language, inputs, outputs, libs)
+
+        except ConfigParser.NoSectionError as nse:
+            log.error(str(nse))
+            return str(nse)
+
+        except ConfigParser.NoOptionError as noe:
+            log.error(str(noe))
+            return str(noe)
 
     def exec_test(self):
-        """ call __test with conf """
-        parser.read(self.testconf)
-        cmdList = parser.get(resources.strings.CONF_TEST,
-                             resources.strings.CONF_EXEC)
-        return self._test(cmdList)
+        """ call _test with conf """
+        try:
+            parser.read(self.testconf)
+            cmdList = parser.get(resources.strings.CONF_TEST,
+                                 resources.strings.CONF_EXEC)
+            return self._test(cmdList)
 
+        except ConfigParser.NoSectionError as nse:
+            log.error(str(nse))
+            return str(nse)
+
+        except ConfigParser.NoOptionError as noe:
+            log.error(str(noe))
+            return str(noe)
 
 class test_unit(object):
 
